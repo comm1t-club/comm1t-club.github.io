@@ -8,72 +8,67 @@
   <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <div class="head-row">
-      <h1 class="title-global">
-        <a href="#"><img class="mark" src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-mark.svg" alt="">Commit Club</a>
-      </h1>
-      <nav>
-        <ul>
-          <li><a href="#about">[About]</a></li>
-          <li><a href="#calendar">[Calendar]</a></li>
-          <li><a href="#leaderboard">[Leaderboard]</a></li>
-          <li><a href="#puzzles">[Projects]</a></li>
-          <li><a href="#terminal">[Terminal]</a></li>
-        </ul>
+    <div class="bar">
+      <a class="brand" href="#about">
+        <img src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-mark.svg" alt="">
+        <span>COMMIT<b>CLUB</b></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="#about" data-key="1"><kbd>[1]</kbd>about</a>
+        <a href="#log" data-key="2"><kbd>[2]</kbd>log</a>
+        <a href="#members" data-key="3"><kbd>[3]</kbd>members</a>
+        <a href="#projects" data-key="4"><kbd>[4]</kbd>projects</a>
+        <a href="#terminal" data-key="5"><kbd>[5]</kbd>terminal</a>
       </nav>
-    </div>
-    <div class="head-row">
-      <h1 class="title-event">
-        <span class="title-event-wrap">var y=</span><a href="#">2026</a><span class="title-event-wrap">;</span>
-      </h1>
-      <span class="star-count" id="star-count">0*</span>
     </div>
   </header>
 
   <main>
-    <section id="about">
-      <pre class="boot" id="boot" aria-label="Boot log"></pre>
-      <article class="intro">
-        <p>
-          <span class="prompt">$</span> <span class="cmd">cat README.md</span>
+    <section id="about" class="hero">
+      <img class="badge" src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-badge.svg" alt="Commit Club badge" width="168" height="168">
+      <div>
+        <p class="cmdline"><span class="ps">~</span> <span class="dollar">$</span> cat README.md</p>
+        <h1>We learn by <em>committing</em>.</h1>
+        <p class="lede">
+          Commit Club is a small crew of developers. We pick a problem, open a
+          repo and keep pushing until it works.
         </p>
-        <p>
-          <em class="amber">Commit Club</em> is a small crew of developers who
-          learn by building. We pick a problem, open a repo, and keep
-          committing until it works. Every project we finish earns the club a
-          <span class="star">*</span>.
+        <p class="status" id="status">
+          <span class="branch">⎇ main</span>
+          <span id="status-members">— members</span>
+          <span id="status-projects">— projects</span>
         </p>
-        <p>
-          Browse the <a href="#calendar">calendar</a>, meet the crew on the
-          <a href="#leaderboard">leaderboard</a>, or drop into the
-          <a href="#terminal">terminal</a> and type <code>help</code>.
-        </p>
-      </article>
+        <pre class="boot" id="boot" aria-label="Boot log"></pre>
+      </div>
     </section>
 
-    <section id="calendar">
-      <h2>--- Calendar ---</h2>
-      <pre class="calendar" id="calendar-grid" aria-label="Project calendar"></pre>
+    <section id="log">
+      <p class="cmdline"><span class="ps">~/club</span> <span class="dollar">$</span> git log --graph --oneline</p>
+      <h2>log</h2>
+      <ol class="graph" id="graph"></ol>
     </section>
 
-    <section id="leaderboard">
-      <h2>--- Private Leaderboard ---</h2>
-      <p class="muted">Club members, pulled from the <a href="https://github.com/orgs/comm1t-club/people" target="_blank" rel="noopener">comm1t-club</a> organization. Score is public repositories.</p>
-      <ol class="board" id="board"></ol>
+    <section id="members">
+      <p class="cmdline"><span class="ps">~/club</span> <span class="dollar">$</span> git shortlog -sn --all</p>
+      <h2>members</h2>
+      <p class="muted">The crew behind <a href="https://github.com/comm1t-club" target="_blank" rel="noopener">github.com/comm1t-club</a>. The count is public repositories.</p>
+      <ul class="members" id="member-list"></ul>
     </section>
 
-    <section id="puzzles">
-      <h2>--- Projects ---</h2>
-      <div id="projects"></div>
+    <section id="projects">
+      <p class="cmdline"><span class="ps">~/club</span> <span class="dollar">$</span> ls -l projects/</p>
+      <h2>projects</h2>
+      <div class="projects" id="project-list"></div>
     </section>
 
     <section id="terminal">
-      <h2>--- Terminal ---</h2>
+      <p class="cmdline"><span class="ps">~/club</span> <span class="dollar">$</span> ./shell</p>
+      <h2>terminal</h2>
       <div class="term" id="term">
         <div class="term-bar"><span></span><span></span><span></span><em>guest@comm1t-club: ~</em></div>
         <div class="term-body" id="term-body">
@@ -88,11 +83,9 @@
   </main>
 
   <footer>
-    <img src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-badge.svg" alt="Commit Club badge" width="72" height="72">
-    <p>
-      <span class="muted">// built by the club &middot;</span>
-      <a href="https://github.com/comm1t-club" target="_blank" rel="noopener">github.com/comm1t-club</a>
-    </p>
+    <img src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-icon.svg" alt="" width="36" height="36">
+    <p><span class="muted">$ git commit -m "built by the club"</span><br>
+      <a href="https://github.com/comm1t-club" target="_blank" rel="noopener">github.com/comm1t-club</a></p>
   </footer>
 
   <script src="script.js"></script>

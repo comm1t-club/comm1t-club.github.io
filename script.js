@@ -133,57 +133,54 @@
     tick();
   }
 
-  // An ASCII tree; each branch row is a "day", project days are lit.
-  function renderCalendar(repos) {
-    const rows = Math.max(8, repos.length + 3);
-    const width = rows * 2 + 3;
-    let seed = 7;
-    const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-    const snowLine = (w) => Array.from({ length: w }, () => (rand() < 0.08 ? '<span class="snow">.</span>' : ' ')).join('');
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
-    let html = `<span class="day">${' '.repeat(Math.floor(width / 2))}<span class="s2">*</span></span>`;
-    for (let d = 1; d <= rows; d++) {
-      const half = d;
-      const pad = Math.floor(width / 2) - half;
-      let body = '';
-      for (let x = 0; x < half * 2 - 1; x++) {
-        const r = rand();
-        if (d <= repos.length && r < 0.25) body += `<span class="ornament">${r < 0.12 ? 'o' : '@'}</span>`;
-        else body += `<span class="tree">${r < 0.5 ? '>' : r < 0.8 ? '<' : '^'}</span>`;
-      }
-      const line = `${snowLine(pad)}<span class="tree">/</span>${body}<span class="tree">\\</span>${snowLine(width - pad - half * 2 - 1)}`;
-      const num = String(d).padStart(2, ' ');
-      const repo = repos[d - 1];
-      if (repo) {
-        html += `<a href="#day-${d}" title="${esc(repo.name)}">${line}  <span class="num">${num}</span> <span class="s2">**</span> <span class="label">${esc(repo.name)}</span></a>`;
-      } else {
-        html += `<span class="day locked">${line.replace(/class="(tree|ornament|snow)"/g, 'class="locked"')}  ${num}</span>`;
-      }
-    }
-    html += `<span class="day">${' '.repeat(Math.floor(width / 2) - 1)}<span class="tree">|_|</span></span>`;
-    $('#calendar-grid').innerHTML = html;
+  // A git-log style graph: one commit per project, newest first, on top of the club's root commit.
+  function renderGraph(repos) {
+    const newest = [...repos].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const items = newest.map((r, i) => `<li>
+        <span class="node"></span>
+        <div class="msg">
+          ${i === 0 ? '<span class="ref">HEAD → main</span>' : ''}<a href="#repo-${esc(r.name)}">feat: ${esc(r.name)}</a>
+          <span class="sub">${[r.language, `created ${fmtDate(r.created_at)}`].filter(Boolean).map(esc).join(' · ')}</span>
+        </div>
+      </li>`);
+    items.push(`<li class="root">
+        <span class="node"></span>
+        <div class="msg">
+          ${repos.length ? '' : '<span class="ref">HEAD → main</span>'}init: commit club
+          <span class="sub">github.com/${ORG}</span>
+        </div>
+      </li>`);
+    $('#graph').innerHTML = items.join('');
   }
 
-  function renderBoard(members) {
-    $('#board').innerHTML = members.map((m, i) => {
+  function renderMembers(members) {
+    $('#member-list').innerHTML = members.map((m) => {
       const extra = [m.company, m.location].filter(Boolean).map(esc).join(' · ');
-      const bio = [m.bio && esc(m.bio), extra].filter(Boolean).join('<br>');
-      return `<li>
-          <span class="rank">${i + 1})</span>
-          <span class="score">${m.public_repos ?? 0}</span>
-          <img src="${esc(m.avatar_url)}&s=64" alt="" loading="lazy">
-          <span class="who"><a href="https://github.com/${esc(m.login)}" target="_blank" rel="noopener">${esc(m.name || m.login)}</a>
-            <span class="handle">@${esc(m.login)}</span></span>
-        </li>${bio ? `<li class="bio-row"><span class="bio">${bio}</span></li>` : ''}`;
+      const bio = m.bio || extra
+        ? `<p class="bio">${esc(m.bio || '')}${extra ? `<span>${extra}</span>` : ''}</p>` : '';
+      return `<li class="member">
+          <img src="${esc(m.avatar_url)}&s=96" alt="" loading="lazy">
+          <div class="who">
+            <a href="https://github.com/${esc(m.login)}" target="_blank" rel="noopener">${esc(m.name || m.login)}</a>
+            <span class="handle">@${esc(m.login)}</span>
+          </div>
+          <div class="count">${m.public_repos ?? 0}<small>repos</small></div>
+          ${bio}
+        </li>`;
     }).join('');
   }
 
   function renderProjects(repos) {
     if (!repos.length) {
-      $('#projects').innerHTML = '<p class="muted">No projects yet. The first star is still up for grabs.</p>';
+      $('#project-list').innerHTML = `<div class="empty">
+          total 0<br>
+          Nothing public yet. The next repo the club pushes shows up here automatically.
+        </div>`;
       return;
     }
-    $('#projects').innerHTML = repos.map((r, i) => {
+    $('#project-list').innerHTML = repos.map((r) => {
       const langs = Object.entries(r.languages || {});
       const total = langs.reduce((s, [, v]) => s + v, 0) || 1;
       const bar = langs.map(([l, v]) =>
@@ -192,21 +189,38 @@
         `<span><i style="background:${LANG_COLORS[l] || '#888'}"></i>${esc(l)} ${(v / total * 100).toFixed(1)}%</span>`).join('');
       const crew = (r.contributors || []).filter(isMember)
         .map((c) => `<a href="https://github.com/${esc(c)}" target="_blank" rel="noopener">@${esc(c)}</a>`).join(', ');
-      return `<article class="puzzle" id="day-${i + 1}">
-          <h3>--- Day ${i + 1}: ${esc(r.name)} ---</h3>
+      return `<article class="project" id="repo-${esc(r.name)}">
+          <h3><span class="perm">drwxr-xr-x</span><a href="${esc(r.html_url)}" target="_blank" rel="noopener">${esc(r.name)}/</a></h3>
           <p>${esc(r.description || 'No description yet.')}</p>
-          ${langs.length ? `<div class="bar">${bar}</div><div class="langs">${legend}</div>` : ''}
+          ${langs.length ? `<div class="langbar">${bar}</div><div class="langs">${legend}</div>` : ''}
           <p class="meta">
-            started <b>${fmtDate(r.created_at)}</b> · last push <b>${fmtDate(r.pushed_at)}</b>
-            · <span class="answer">${r.stargazers_count}★</span>
-            ${crew ? `<br>solved by ${crew}` : ''}
-          </p>
-          <p>
-            <a href="${esc(r.html_url)}" target="_blank" rel="noopener">[View source]</a>
-            ${r.homepage ? `<a href="${esc(r.homepage)}" target="_blank" rel="noopener">[Live demo]</a>` : ''}
+            created <b>${fmtDate(r.created_at)}</b> · last push <b>${fmtDate(r.pushed_at)}</b>
+            · <b>${r.stargazers_count}★</b>
+            ${crew ? `<br>by ${crew}` : ''}
+            ${r.homepage ? `<br><a href="${esc(r.homepage)}" target="_blank" rel="noopener">live demo →</a>` : ''}
           </p>
         </article>`;
     }).join('');
+  }
+
+  // Number keys 1-5 jump to sections, and the nav highlights the section in view.
+  function initNav() {
+    const links = [...document.querySelectorAll('nav a[data-key]')];
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+      const link = links.find((a) => a.dataset.key === e.key);
+      if (link) { e.preventDefault(); link.click(); }
+    });
+    const onScroll = () => {
+      let current = links[0];
+      for (const a of links) {
+        const sec = document.querySelector(a.getAttribute('href'));
+        if (sec && sec.getBoundingClientRect().top < window.innerHeight * 0.35) current = a;
+      }
+      links.forEach((a) => a.classList.toggle('active', a === current));
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   // ---------- terminal ----------
@@ -231,7 +245,7 @@
       '    / __/ _ \\|  \\/  |  \\/  / |_   _|',
       '   | (_| (_) | |\\/| | |\\/| | | | |  ',
       '    \\___\\___/|_|  |_|_|  |_|_| |_|  ',
-      '          <span class="star">*</span>  c l u b  <span class="star">*</span>',
+      '              c  l  u  b',
     ].join('\n');
 
     const commands = {
@@ -245,10 +259,10 @@
         '  date            print the date',
         '  clear           clear the screen',
       ].join('\n'),
-      whoami: () => 'Commit Club: a crew of developers who learn by building. One repo, one star at a time.',
+      whoami: () => 'Commit Club: a crew of developers who learn by building, one commit at a time.',
       members: () => data.members.map((m) => `  <a href="https://github.com/${esc(m.login)}" target="_blank" rel="noopener">@${esc(m.login).padEnd(12)}</a> ${esc(m.name || '')}`).join('\n'),
       projects: () => data.repos.length
-        ? data.repos.map((r, i) => `  day ${String(i + 1).padStart(2)}  <a href="#day-${i + 1}">${esc(r.name)}</a>  <span class="muted">${esc(r.language || '')}</span>`).join('\n')
+        ? data.repos.map((r) => `  <a href="#repo-${esc(r.name)}">${esc(r.name)}/</a>  <span class="muted">${esc(r.language || '')}</span>`).join('\n')
         : 'no projects yet',
       ls: () => commands.projects(),
       logo: () => LOGO,
@@ -298,7 +312,7 @@
     });
     body.addEventListener('click', () => { if (!window.getSelection().toString()) input.focus({ preventScroll: true }); });
 
-    print(LOGO);
+    print(LOGO, 'logo');
     print('welcome, guest. type <code>help</code> to get started.');
   }
 
@@ -306,12 +320,15 @@
 
   function render(data) {
     renderBoot(data);
-    renderCalendar(data.repos);
-    renderBoard(data.members);
+    renderGraph(data.repos);
+    renderMembers(data.members);
     renderProjects(data.repos);
-    $('#star-count').textContent = `${data.repos.length * 2}*`;
+    $('#status-members').textContent = plural(data.members.length, 'member');
+    $('#status-projects').textContent = plural(data.repos.length, 'project');
     initTerminal(data);
   }
+
+  initNav();
 
   loadData()
     .catch(() => ({
