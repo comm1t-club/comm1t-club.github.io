@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Commit Club</title>
+  <meta name="description" content="Commit Club — a small crew of developers shipping code together.">
+  <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="head-row">
+      <h1 class="title-global">
+        <a href="#"><img class="mark" src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-mark.svg" alt="">Commit Club</a>
+      </h1>
+      <nav>
+        <ul>
+          <li><a href="#about">[About]</a></li>
+          <li><a href="#calendar">[Calendar]</a></li>
+          <li><a href="#leaderboard">[Leaderboard]</a></li>
+          <li><a href="#puzzles">[Projects]</a></li>
+          <li><a href="#terminal">[Terminal]</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="head-row">
+      <h1 class="title-event">
+        <span class="title-event-wrap">var y=</span><a href="#">2026</a><span class="title-event-wrap">;</span>
+      </h1>
+      <span class="star-count" id="star-count">0*</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="about">
+      <pre class="boot" id="boot" aria-label="Boot log"></pre>
+      <article class="intro">
+        <p>
+          <span class="prompt">$</span> <span class="cmd">cat README.md</span>
+        </p>
+        <p>
+          <em class="amber">Commit Club</em> is a small crew of developers who
+          learn by building. We pick a problem, open a repo, and keep
+          committing until it works. Every project we finish earns the club a
+          <span class="star">*</span>.
+        </p>
+        <p>
+          Browse the <a href="#calendar">calendar</a>, meet the crew on the
+          <a href="#leaderboard">leaderboard</a>, or drop into the
+          <a href="#terminal">terminal</a> and type <code>help</code>.
+        </p>
+      </article>
+    </section>
+
+    <section id="calendar">
+      <h2>--- Calendar ---</h2>
+      <pre class="calendar" id="calendar-grid" aria-label="Project calendar"></pre>
+    </section>
+
+    <section id="leaderboard">
+      <h2>--- Private Leaderboard ---</h2>
+      <p class="muted">Club members, pulled from the <a href="https://github.com/orgs/comm1t-club/people" target="_blank" rel="noopener">comm1t-club</a> organization. Score is public repositories.</p>
+      <ol class="board" id="board"></ol>
+    </section>
+
+    <section id="puzzles">
+      <h2>--- Projects ---</h2>
+      <div id="projects"></div>
+    </section>
+
+    <section id="terminal">
+      <h2>--- Terminal ---</h2>
+      <div class="term" id="term">
+        <div class="term-bar"><span></span><span></span><span></span><em>guest@comm1t-club: ~</em></div>
+        <div class="term-body" id="term-body">
+          <div id="term-out"></div>
+          <form id="term-form" class="term-line" autocomplete="off">
+            <label for="term-input" class="prompt">guest@comm1t-club:~$</label>
+            <input id="term-input" type="text" spellcheck="false" aria-label="Terminal input">
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <img src="https://raw.githubusercontent.com/comm1t-club/assets/main/commit-club-badge.svg" alt="Commit Club badge" width="72" height="72">
+    <p>
+      <span class="muted">// built by the club &middot;</span>
+      <a href="https://github.com/comm1t-club" target="_blank" rel="noopener">github.com/comm1t-club</a>
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
